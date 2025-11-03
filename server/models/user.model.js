@@ -20,6 +20,14 @@ let userSchema = mongoose.Schema(
       trim: true,
       minlength: 6,
     },
+    currency: {
+      type: String,
+      default: 'USD',
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

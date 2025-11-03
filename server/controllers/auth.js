@@ -37,17 +37,22 @@ const registerUser = async (req, res) => {
         user_id: newUser._id,
         name: newUser.name,
         email: newUser.email,
+        currency: newUser.currency,
       },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-    return res
-      .status(201)
-      .json({ message: 'User registered successfully', success: true, token, user: {
+    return res.status(201).json({
+      message: 'User registered successfully',
+      success: true,
+      token,
+      user: {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
-      } });
+        currency: newUser.currency,
+      },
+    });
   } catch (error) {
     return res.status(500).json({
       message: 'Error registering user',
@@ -90,6 +95,7 @@ const login = async (req, res) => {
         user_id: user._id,
         name: user.name,
         email: user.email,
+        currency: user.currency,
       },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
@@ -102,6 +108,7 @@ const login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        currency: user.currency,
       },
       token: token,
     });

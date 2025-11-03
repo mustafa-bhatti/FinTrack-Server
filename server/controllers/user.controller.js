@@ -49,5 +49,37 @@ const postUser = async (req, res) => {
     });
   }
 };
+const updateCurrency = async (req, res) => {
+  // Implementation for updating a user's currency preference
+  try {
+    let { id } = req.params;
+    let { currency } = req.body;
 
-export { getAllUsers, postUser };
+    let updatedUser = await userModel.findByIdAndUpdate(
+      id,
+      { currency },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        message: 'User not found',
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      message: 'User updated successfully',
+      success: true,
+      user: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: 'Error updating user',
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+export { getAllUsers, postUser, updateCurrency };
