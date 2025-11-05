@@ -17,7 +17,7 @@ export const addTransaction = async (req, res) => {
     });
 
     await newTransaction.save();
-    res.status(201).json({
+    res.status(200).json({
       message: 'Transaction added successfully',
       transaction: newTransaction,
     });

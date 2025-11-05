@@ -9,7 +9,7 @@ let transactionSchema = mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['Income', 'Expense'],
+    enum: ['income', 'expense'],
   },
   category: {
     type: String,
@@ -17,22 +17,22 @@ let transactionSchema = mongoose.Schema({
     trim: true,
     validate: {
       validator: function (value) {
-        if (this.type === 'Income') {
-          const incomeCategories = ['Salary', 'Business', 'Investment'];
+        if (this.type === 'income') {
+          const incomeCategories = ['salary', 'business', 'investment'];
           return incomeCategories.includes(value);
-        } else if (this.type === 'Expense') {
+        } else if (this.type === 'expense') {
           const expenseCategories = [
-            'Eating',
-            'Shopping',
-            'Entertainment',
-            'Travel',
-            'Groceries',
-            'Rent',
-            'Health',
-            'Gift',
-            'Fuel',
-            'Transport',
-            'Other',
+            'eating',
+            'shopping',
+            'entertainment',
+            'travel',
+            'groceries',
+            'rent',
+            'health',
+            'gift',
+            'fuel',
+            'transport',
+            'other',
           ];
           return expenseCategories.includes(value);
         }
@@ -52,7 +52,7 @@ let transactionSchema = mongoose.Schema({
   source: {
     type: String,
     required: true,
-    enum: ['Bank', 'Wallet'],
+    enum: ['bank', 'wallet'],
   },
 });
 
