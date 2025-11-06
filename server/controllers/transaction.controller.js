@@ -35,6 +35,51 @@ export const getTransactionsByUser = async (req, res) => {
     res.status(500).json({ message: 'Error fetching transactions', error });
   }
 };
+
+export const deleteTransaction = async (req, res) => {
+  try {
+    const { transaction_id } = req.params;
+
+    const deletedTransaction = await transactionModel.findByIdAndDelete(
+      transaction_id
+    );
+    res
+      .status(200)
+      .json({
+        message: 'Transaction deleted successfully',
+        transaction: deletedTransaction,
+      });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting transaction', error });
+  }
+};
+
+
+export const updateTransaction = async (req, res) => {
+  try {
+    const { transaction_id } = req.params;
+    const { date, amount, type, category, source } = req.body;
+
+    if (!date || !amount || !type || !category || !source) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const updatedTransaction = await transactionModel.findByIdAndUpdate(
+      transaction_id,
+      { date, amount, type, category, source },
+      { new: true }
+    );
+
+
+    res.status(200).json({
+      message: 'Transaction updated successfully',
+      transaction: updatedTransaction,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating transaction', error });
+  }
+};
+
 // export const getTransactionSummary = async (req, res) => {
 //   try {
 //     const { user_id } = req.params;

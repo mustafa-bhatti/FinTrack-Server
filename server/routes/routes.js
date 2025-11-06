@@ -12,7 +12,9 @@ import express from 'express';
 import { AuthenticateUser } from '../middleware/authmiddleware.js';
 import {
   addTransaction,
+  deleteTransaction,
   getTransactionsByUser,
+  updateTransaction,
 } from '../controllers/transaction.controller.js';
 const router = express.Router();
 router.post('/auth/register', registerUser);
@@ -33,15 +35,19 @@ router.get('/auth/verify', AuthenticateUser, (req, res) => {
 // TODO:Delete User based on ROLE
 router.get('/users', AuthenticateUser, getAllUsers);
 router.post('/users/add', AuthenticateUser, postUser);
+
 router.get('/users/:user_id/balances', AuthenticateUser, getBalancesByUser);
 router.post('/users/:user_id/balances/add', AuthenticateUser, postBalance);
 router.get('/users/:user_id/incomes', AuthenticateUser, getIncomesByUser);
 router.post('/users/:user_id/incomes/add', AuthenticateUser, addIncome);
+// Transaction Routes
 router.get(
   '/users/:user_id/transactions',
   AuthenticateUser,
   getTransactionsByUser
 );
 router.post('/users/transactions/add', AuthenticateUser, addTransaction);
+router.delete('/users/transactions/delete/:transaction_id', AuthenticateUser, deleteTransaction);
+router.put('/users/transactions/update/:transaction_id', AuthenticateUser, updateTransaction);
 
 export default router;
