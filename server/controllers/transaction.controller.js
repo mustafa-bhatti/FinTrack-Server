@@ -6,7 +6,15 @@ export const addTransaction = async (req, res) => {
     if (!user_id || !type || !category || !amount || !date || !source) {
       return res.status(400).json({ message: 'All fields are required' });
     }
-
+    // Normalize and validate input fields
+    type = type.toLowerCase();
+    category = category.toLowerCase();
+    amount = parseFloat(amount);
+    if (isNaN(amount) || amount <= 0) {
+      return res
+        .status(400)
+        .json({ message: 'Amount must be a positive number' });
+    }
     const newTransaction = new transactionModel({
       user_id,
       type,
@@ -43,17 +51,14 @@ export const deleteTransaction = async (req, res) => {
     const deletedTransaction = await transactionModel.findByIdAndDelete(
       transaction_id
     );
-    res
-      .status(200)
-      .json({
-        message: 'Transaction deleted successfully',
-        transaction: deletedTransaction,
-      });
+    res.status(200).json({
+      message: 'Transaction deleted successfully',
+      transaction: deletedTransaction,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting transaction', error });
   }
 };
-
 
 export const updateTransaction = async (req, res) => {
   try {
@@ -69,7 +74,6 @@ export const updateTransaction = async (req, res) => {
       { date, amount, type, category, source },
       { new: true }
     );
-
 
     res.status(200).json({
       message: 'Transaction updated successfully',
