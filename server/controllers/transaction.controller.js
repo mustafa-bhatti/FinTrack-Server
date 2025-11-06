@@ -37,7 +37,9 @@ export const addTransaction = async (req, res) => {
 export const getTransactionsByUser = async (req, res) => {
   try {
     const { user_id } = req.params;
-    const transactions = await transactionModel.find({ user_id });
+    const transactions = await transactionModel
+      .find({ user_id })
+      .sort({ date: -1 });
     res.status(200).json({ transactions });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching transactions', error });

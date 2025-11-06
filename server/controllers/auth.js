@@ -2,6 +2,7 @@ import userModel from '../models/user.model.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { sendLoginElert } from '../utils/mail.js';
 dotenv.config();
 
 const registerUser = async (req, res) => {
@@ -42,6 +43,7 @@ const registerUser = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
+    await sendLoginElert(email);
     return res.status(201).json({
       message: 'User registered successfully',
       success: true,
@@ -100,7 +102,7 @@ const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-    console.log('JWT Token: ', token);
+    await sendLoginElert(email);
     return res.status(201).json({
       message: 'Login successful',
       success: true,
