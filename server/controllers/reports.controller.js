@@ -22,6 +22,7 @@ export const getTransactionByMonth = async (req, res) => {
       }
       acc[monthName].total += transaction.amount;
       acc[monthName].count += 1;
+
       return acc;
     }, {});
     console.log('Monthly Transactions Group: ', incomeReport);
