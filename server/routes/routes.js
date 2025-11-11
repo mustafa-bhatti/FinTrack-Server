@@ -1,4 +1,4 @@
-import { getAllUsers, resetDataFromTransactionandBalance } from '../controllers/user.controller.js';
+import { getAllUsers, resetDataFromTransactionandBalance, updateUser } from '../controllers/user.controller.js';
 import { getBalancesByUser } from '../controllers/balance.controller.js';
 
 import { registerUser, login } from '../controllers/auth.js';
@@ -31,7 +31,7 @@ router.get('/auth/verify', AuthenticateUser, (req, res) => {
 router.get('/users', AuthenticateUser, getAllUsers);
 router.get('/users/:user_id/balances', AuthenticateUser, getBalancesByUser);
 router.get('/users/reset/:user_id', AuthenticateUser, resetDataFromTransactionandBalance);
-
+router.put('/users/update/:id', AuthenticateUser, updateUser);
 // Transaction Routes
 router.get(
   '/users/:user_id/transactions',

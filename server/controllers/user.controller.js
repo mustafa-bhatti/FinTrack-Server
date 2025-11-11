@@ -1,5 +1,6 @@
 import balanceModel from '../models/balance.model.js';
 import transactionModel from '../models/transactions.model.js';
+import bcrypt from 'bcryptjs';
 import userModel from '../models/user.model.js';
 const getAllUsers = async (req, res) => {
   try {
@@ -50,17 +51,34 @@ const getAllUsers = async (req, res) => {
 //     });
 //   }
 // };
-const updateCurrency = async (req, res) => {
+const updateUser = async (req, res) => {
   // Implementation for updating a user's currency preference
   try {
     let { id } = req.params;
-    let { currency } = req.body;
-
-    let updatedUser = await userModel.findByIdAndUpdate(
-      id,
-      { currency },
-      { new: true }
-    );
+    let { email, password, currentPassword, currency } = req.body;
+    let updatedFields = {};
+    
+    if (email !== '') {
+      updatedFields.email = email;
+    }
+    if (password !== '') {
+      const user = await userModel.findById(id);
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(401).json({
+          message: 'Current password is incorrect',
+          success: false,
+        });
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updatedFields.password = hashedPassword;
+    }
+    if (currency !== '') {
+      updatedFields.currency = currency;
+    }
+    let updatedUser = await userModel.findByIdAndUpdate(id, updatedFields, {
+      new: true,
+    });
 
     if (!updatedUser) {
       return res.status(404).json({
@@ -91,11 +109,11 @@ const resetDataFromTransactionandBalance = async (req, res) => {
     await balanceModel.deleteMany({ user_id });
   } catch (error) {
     throw new Error('Error resetting data: ' + error.message);
-  } 
+  }
   res.status(200).json({
     message: 'User data reset successfully',
     success: true,
   });
 };
 
-export { getAllUsers, updateCurrency, resetDataFromTransactionandBalance };
+export { getAllUsers, updateUser, resetDataFromTransactionandBalance };
