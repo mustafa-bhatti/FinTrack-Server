@@ -12,11 +12,11 @@ import {
 } from '../controllers/transaction.controller.js';
 import { getTransactionReport } from '../controllers/reports.controller.js';
 const router = express.Router();
-router.post('/auth/register', registerUser);
-router.post('/auth/login', login);
-router.get('/auth/verify', AuthenticateUser, (req, res) => {
+router.post("/auth/register", registerUser);
+router.post("/auth/login", login);
+router.get("/auth/verify", AuthenticateUser, (req, res) => {
   res.status(200).json({
-    message: 'Authentication successful',
+    message: "Authentication successful",
     success: true,
     user: {
       id: req.user.user_id,
@@ -34,18 +34,18 @@ router.get('/users/reset/:user_id', AuthenticateUser, resetDataFromTransactionan
 router.put('/users/update/:id', AuthenticateUser, updateUser);
 // Transaction Routes
 router.get(
-  '/users/:user_id/transactions',
+  "/users/:user_id/transactions",
   AuthenticateUser,
   getTransactionsByUser
 );
-router.post('/users/transactions/add', AuthenticateUser, addTransaction);
+router.post("/users/transactions/add", AuthenticateUser, addTransaction);
 router.delete(
-  '/users/transactions/delete/:transaction_id',
+  "/users/transactions/delete/:transaction_id",
   AuthenticateUser,
   deleteTransaction
 );
 router.put(
-  '/users/transactions/update/:transaction_id',
+  "/users/transactions/update/:transaction_id",
   AuthenticateUser,
   updateTransaction
 );
