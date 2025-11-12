@@ -5,6 +5,10 @@ let balanceSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
   },
+  trans_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "transaction",
+  },
   amount: {
     type: Number,
     default: 0,

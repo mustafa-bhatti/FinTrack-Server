@@ -29,34 +29,27 @@ export const addTransaction = async (req, res) => {
     // -------------------------------//
 
     // Update balance immediately after adding transaction
-    let balance = await balanceModel.findOne({ user_id, balanceType: source });
+    let balance = await balanceModel.findOne({ user_id, balanceType: source }).sort({ date: -1 });
     let currentAmount = balance ? balance.amount : 0;
 
     // Calculate new balance
     let updatedAmount =
       type === 'income' ? currentAmount + amount : currentAmount - amount;
-
-    // If balance exists, update it; otherwise create new
-    if (!balance) {
-      balance = new balanceModel({
-        user_id,
-        balanceType: source,
-        amount: updatedAmount,
-        date: new Date().toISOString(),
-      });
-    } else {
-      balance.amount = updatedAmount;
-      balance.date = new Date().toISOString();
-    }
-
-    await balance.save();
+    // Add New balance entry
+    const transactionBalance = new balanceModel({
+      user_id,
+      trans_id: newTransaction._id,
+      balanceType: source,
+      amount: updatedAmount,
+      date: new Date().toISOString(),
+    });
+    await transactionBalance.save();
 
     // -------------------------------//
     res.status(200).json({
       success: true,
       message: 'Transaction added successfully',
       transaction: newTransaction,
-      balance: balance,
     });
   } catch (error) {
     res.status(500).json({ message: 'Error adding transaction', error });
@@ -69,6 +62,11 @@ export const getTransactionsByUser = async (req, res) => {
     const transactions = await transactionModel
       .find({ user_id })
       .sort({ date: -1 });
+    if (!transactions || transactions.length === 0) {
+      return res
+        .status(404)
+        .json({ message: 'No transactions found for this user' });
+    }
     res.status(200).json({ transactions });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching transactions', error });
@@ -179,21 +177,3 @@ export const updateTransaction = async (req, res) => {
   }
 };
 
-// export const getTransactionSummary = async (req, res) => {
-//   try {
-//     const { user_id } = req.params;
-//     const transactions = await transactionModel.find({ user_id });
-//     const summary = transactions.reduce((acc, transaction) => {
-//       if (transaction.type === 'Income') {
-//         acc.totalIncome += transaction.amount;
-//       } else {
-//         acc.totalExpenses += transaction.amount;
-//       }
-//       return acc;
-//     }, { totalIncome: 0, totalExpenses: 0 });
-
-//     res.status(200).json({ summary });
-//   } catch (error) {
-//     res.status(500).json({ message: 'Error fetching transaction summary', error });
-//   }
-// };

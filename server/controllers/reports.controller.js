@@ -1,4 +1,42 @@
 import transactionModel from '../models/transactions.model.js';
+import balanceModel from '../models/balance.model.js';
+
+export const getBalanceOverTime = async (req, res) => {
+  try {
+    const { user_id, monthsNumber } = req.params;
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - parseInt(monthsNumber));
+    const endDate = new Date();
+    // is it possible to get two balances for bank and wallet in one query?
+    
+    const balances = await balanceModel.find({
+      user_id,
+      date: { $gte: startDate.toISOString(), $lte: endDate.toISOString() },
+    });
+
+    if (!balances || balances.length === 0) {
+      return res.status(404).json({
+        message: 'No balance data found for the specified period',
+      });
+    }
+
+    res
+      .status(200)
+      .json({
+        balances,
+        message: 'Balances fetched successfully',
+        success: true,
+      });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: 'Error fetching balance over time',
+        error,
+      });
+  }
+};
 
 export const getTransactionReport = async (req, res) => {
   try {
@@ -53,49 +91,3 @@ export const getTransactionReport = async (req, res) => {
     res.status(500).json({ message: 'Error fetching transactions', error });
   }
 };
-
-// export const currentMonthTransactionSummary = async (req, res) => {
-//   try {
-//     const { user_id } = req.params; // Get current month and year
-//     const now = new Date();
-//     const currentMonth = now.getMonth();
-//     const currentYear = now.getFullYear();
-//     const startDate = new Date(currentYear, currentMonth, 1); // First day of month
-//     const endDate = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999); // Last day of month
-//     // Fetch transactions for the current month
-//     console.log('Current Month: ', currentMonth, currentYear);
-//     console.log('Current Year: ', currentYear);
-//     const transactions = await transactionModel.find({
-//       user_id,
-//       date: {
-//         $gte: startDate.toISOString(),
-//         $lte: endDate.toISOString(),
-//       },
-//     });
-
-//     // Calculate summary
-//     const summary = transactions.reduce(
-//       (acc, transaction) => {
-//         if (transaction.type === 'income') {
-//           acc.totalIncome += transaction.amount;
-//         } else {
-//           acc.totalExpenses += transaction.amount;
-//         }
-//         return acc;
-//       },
-//       { totalIncome: 0, totalExpenses: 0 }
-//     );
-
-//     console.log('Current Month Summary: ', summary);
-//     res.status(200).json({
-//       summary,
-//       success: true,
-//       message: 'Current month transaction summary fetched successfully',
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       message: 'Error fetching current month transaction summary',
-//       error,
-//     });
-//   }
-// };

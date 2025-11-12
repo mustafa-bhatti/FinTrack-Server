@@ -3,28 +3,29 @@ import balanceModel from '../models/balance.model.js';
 const getBalancesByUser = async (req, res) => {
   try {
     const { user_id } = req.params;
-    const balances = await balanceModel
-      .find({ user_id }, { _id: 0 })
-      .populate('user_id', 'name email')
+    let latestBankBalance = await balanceModel
+      .findOne({ user_id, balanceType: 'bank' })
       .sort({ date: -1 });
-    // ------------- getting balance of bank and wollet seprately ------------------//
-    const bankBalance = balances.find((b) => b.balanceType === 'bank') || {
-      amount: 0,
-    };
-
-    const walletBalance = balances.find((b) => b.balanceType === 'wallet') || {
-      amount: 0,
-    };
+    console.log(latestBankBalance);
+    if (!latestBankBalance) {
+      latestBankBalance = { amount: 0 };
+    }
+    let latestWalletBalance = await balanceModel
+      .findOne({ user_id, balanceType: 'wallet' })
+      .sort({ date: -1 });
+    console.log(latestWalletBalance);
+    if (!latestWalletBalance) {
+      latestWalletBalance = { amount: 0 };
+    }
     let balanceArray = {};
-    balanceArray.bank = bankBalance.amount;
-    balanceArray.wallet = walletBalance.amount;
+    balanceArray.bank = latestBankBalance.amount;
+    balanceArray.wallet = latestWalletBalance.amount;
+
     console.log(balanceArray);
 
     res.status(200).json({
       message: 'Balances fetched successfully',
       success: true,
-      bankBalance: bankBalance.amount,
-      walletBalance: walletBalance.amount,
       balances: balanceArray,
     });
     // -------------------------------//
