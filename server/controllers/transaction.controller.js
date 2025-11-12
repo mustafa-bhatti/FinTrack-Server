@@ -20,7 +20,7 @@ export const addTransaction = async (req, res) => {
       user_id,
       type,
       category,
-      date: new Date(date),
+      date: new Date(date).toISOString(),
       amount,
       source,
     });
@@ -29,7 +29,9 @@ export const addTransaction = async (req, res) => {
     // -------------------------------//
 
     // Update balance immediately after adding transaction
-    let balance = await balanceModel.findOne({ user_id, balanceType: source }).sort({ date: -1 });
+    let balance = await balanceModel
+      .findOne({ user_id, balanceType: source })
+      .sort({ date: -1 });
     let currentAmount = balance ? balance.amount : 0;
 
     // Calculate new balance
@@ -75,7 +77,7 @@ export const getTransactionsByUser = async (req, res) => {
 
 export const deleteTransaction = async (req, res) => {
   try {
-    const { transaction_id } = req.params;
+    const { user_id, transaction_id } = req.params;
 
     const deletedTransaction = await transactionModel.findByIdAndDelete(
       transaction_id
@@ -85,29 +87,39 @@ export const deleteTransaction = async (req, res) => {
       return res.status(404).json({ message: 'Transaction not found' });
     }
 
-    // 2️⃣ Update balance immediately after deletion
-    const balance = await balanceModel.findOne({
+    // Update balance immediately after deletion
+    const balance = await balanceModel.findOneAndDelete({
       user_id: deletedTransaction.user_id,
-      balanceType: deletedTransaction.source,
+      trans_id: deletedTransaction._id,
     });
-    console.log('deleted Transaction: ', deleteTransaction);
+
     console.log('Balance before update:', balance);
     if (balance) {
-      // Reverse the effect of the deleted transaction
-      balance.amount =
+      // Get all balance entries after the deleted transaction for the same user and balance type
+      const subsequentBalances = await balanceModel
+        .find({
+          user_id: deletedTransaction.user_id,
+          balanceType: deletedTransaction.source,
+          date: { $gt: balance.date },
+        })
+        .sort({ date: 1 });
+
+      // Calculate the adjustment amount (reverse the transaction effect)
+      const adjustmentAmount =
         deletedTransaction.type === 'income'
-          ? balance.amount - deletedTransaction.amount
-          : balance.amount + deletedTransaction.amount;
+          ? -deletedTransaction.amount // Remove income
+          : deletedTransaction.amount; // Add back expense
 
-      await balance.save();
+      // Update all subsequent balances
+      for (const subsequentBalance of subsequentBalances) {
+        subsequentBalance.amount += adjustmentAmount;
+        await subsequentBalance.save();
+      }
     }
-
-    //------------------------///
 
     res.status(200).json({
       message: 'Transaction deleted successfully',
       transaction: deletedTransaction,
-      // updated balance
       updatedBalance: balance,
     });
   } catch (error) {
@@ -126,17 +138,17 @@ export const updateTransaction = async (req, res) => {
     //
     const oldTransaction = await transactionModel.findById(transaction_id);
     if (!oldTransaction) {
-      return res.status(404).json({ message: "Transaction not found" });
+      return res.status(404).json({ message: 'Transaction not found' });
     }
 
-    // 🔹 Step 2: Find the balance of the OLD source
+    //Find the balance of the OLD source
     const oldBalance = await balanceModel.findOne({
       user_id: oldTransaction.user_id,
       balanceType: oldTransaction.source,
     });
     if (oldBalance) {
       oldBalance.amount =
-        oldTransaction.type === "income"
+        oldTransaction.type === 'income'
           ? oldBalance.amount - oldTransaction.amount // remove previous income
           : oldBalance.amount + oldTransaction.amount; // refund previous expense
 
@@ -159,7 +171,7 @@ export const updateTransaction = async (req, res) => {
     // 🔹 Step 6: APPLY the new transaction’s effect
     if (newBalance) {
       newBalance.amount =
-        updatedTransaction.type === "income"
+        updatedTransaction.type === 'income'
           ? newBalance.amount + updatedTransaction.amount // add new income
           : newBalance.amount - updatedTransaction.amount; // deduct new expense
 
@@ -176,4 +188,3 @@ export const updateTransaction = async (req, res) => {
     res.status(500).json({ message: 'Error updating transaction', error });
   }
 };
-

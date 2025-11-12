@@ -6,14 +6,12 @@ const getBalancesByUser = async (req, res) => {
     let latestBankBalance = await balanceModel
       .findOne({ user_id, balanceType: 'bank' })
       .sort({ date: -1 });
-    console.log(latestBankBalance);
     if (!latestBankBalance) {
       latestBankBalance = { amount: 0 };
     }
     let latestWalletBalance = await balanceModel
       .findOne({ user_id, balanceType: 'wallet' })
       .sort({ date: -1 });
-    console.log(latestWalletBalance);
     if (!latestWalletBalance) {
       latestWalletBalance = { amount: 0 };
     }
