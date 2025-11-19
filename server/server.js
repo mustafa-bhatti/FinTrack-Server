@@ -17,20 +17,28 @@ app.use(morgan('dev'));
 app.get('/', (req, res) => {
   res.send('Express App Started');
 });
+const allowedOrigins =
+  process.env.NODE_ENV === 'production'
+    ? [
+        'https://fintrack-app.vercel.app', // Your Vercel domain
+      ]
+    : ['http://localhost:5173'];
+
 app.use(
   cors({
-    origin: 'http://localhost:5173', // React dev server
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'], 
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   })
 );
 
 app.use('/api/v1/', router);
 
-app.listen(PORT, (error) => {
+app.listen(PORT, '0.0.0.0', (error) => {
   if (error) {
     throw error;
   }
   console.log('Express Server Started');
+  console.log(`Environment : ${process.env.NODE_ENV}`);
 });
