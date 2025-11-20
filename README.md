@@ -11,11 +11,11 @@ This repository contains the server-side logic, database schemas, and API endpoi
 
 ---
 
-## 🏗️ Architecture & Design
+## Architecture & Design
 
 The server follows the **MVC (Model-View-Controller)** architectural pattern (minus the View, as this is a headless API) to ensure separation of concerns and code maintainability.
 
-### 📂 Folder Structure
+### Folder Structure
 ```bash
 server/
 ├── config/         # Database connection logic (MongoDB)
@@ -28,14 +28,14 @@ server/
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
-*   **🔐 Secure Authentication:** Implements **JWT (JSON Web Tokens)** for stateless authentication and **Bcrypt** for password hashing.
-*   **🛡️ Middleware Protection:** Custom `authmiddleware.js` ensures protected routes are only accessible by valid tokens.
-*   **👑 Role-Based Access Control (RBAC):** Dedicated `admin.controller.js` to handle administrative actions separate from standard user logic.
-*   **📈 Financial Reporting:** Specialized logic in `reports.controller.js` to aggregate transaction data into meaningful insights (Income vs. Expense).
-*   **📧 Email Integration:** Integrated `Nodemailer` utility (`mail.js`) for user communication (Welcome emails, alerts).
-*   **💾 Data Integrity:** Mongoose models enforce strict schema validation for Users, Transactions, Budgets, and Balances.
+*   **Secure Authentication:** Implements **JWT (JSON Web Tokens)** for stateless authentication and **Bcrypt** for password hashing.
+*   **Middleware Protection:** Custom `authmiddleware.js` ensures protected routes are only accessible by valid tokens.
+*   **Role-Based Access Control (RBAC):** Dedicated `admin.controller.js` to handle administrative actions separate from standard user logic.
+*   **Financial Reporting:** Specialized logic in `reports.controller.js` to aggregate transaction data into meaningful insights (Income vs. Expense).
+*   **Email Integration:** Integrated `Nodemailer` utility (`mail.js`) for user communication (Welcome emails, alerts).
+*   **Data Integrity:** Mongoose models enforce strict schema validation for Users, Transactions, Budgets, and Balances.
 
 ---
 
